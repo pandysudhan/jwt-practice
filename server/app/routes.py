@@ -7,6 +7,7 @@ from flask_jwt_extended import (
     get_jwt_identity,
 )
 from dotenv import load_dotenv
+import time
 
 jwt = JWTManager(app)
 users = [{"email": "test@test.com", "password": "password"}]
@@ -16,17 +17,18 @@ users = [{"email": "test@test.com", "password": "password"}]
 @jwt_required()
 def home():
     email = get_jwt_identity()
-    return ( email), 200
+    return jsonify(email=email), 200
 
 
-@app.route("/login", methods =["POST"])
+@app.route("/login", methods=["POST"])
 def login():
     email = request.json.get("email", None)
     password = request.json.get("password", None)
 
+    time.sleep(2)
     if {"email": email, "password": password} in users:
         access_token = create_access_token(identity=email)
         return jsonify(access_token=access_token), 200
-    
+
     print(email, password)
     return jsonify({"msg": "invalid credentials"}), 401

@@ -35,6 +35,11 @@ function Login() {
   const [token, setToken] = useState(
     localStorage.getItem("access_token") || ""
   );
+  useEffect(() => {
+    if (token != "") {
+      navigate("/");
+    }
+  }, [token]);
 
   async function handleLoginSubmit() {
     try {
@@ -51,7 +56,7 @@ function Login() {
       const res = await response.json();
       console.log(res.access_token);
       localStorage.setItem("access_token", res.access_token);
-      navigate("/");
+      setToken(res.access_token);
     } catch (e) {
       console.log(e);
     }
