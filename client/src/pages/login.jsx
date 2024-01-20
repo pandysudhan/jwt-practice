@@ -1,8 +1,8 @@
-
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import FormFields from "../components/loginComponents/formFields";
 import FormHeader from "../components/loginComponents/formHeader";
 import FormSubmissionArea from "../components/loginComponents/formSubmissionArea";
+import { useNavigate } from "react-router-dom";
 
 const loginFields = [
   {
@@ -30,11 +30,31 @@ let fieldState = {};
 loginFields.forEach((field) => (fieldState[field.id] = ""));
 
 function Login() {
+  const navigate = useNavigate();
   const [loginState, setLoginState] = useState(fieldState);
-  function handleLoginSubmit() {
-    console.log("login details");
-    console.log(loginState)
-    
+  const [token, setToken] = useState(
+    localStorage.getItem("access_token") || ""
+  );
+
+  async function handleLoginSubmit() {
+    try {
+      const response = await fetch("http://127.0.0.1:5000/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: loginState["email-address"],
+          password: loginState["password"],
+        }),
+      });
+      const res = await response.json();
+      console.log(res.access_token);
+      localStorage.setItem("access_token", res.access_token);
+      navigate("/");
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   const handleLoginChange = (e) => {
