@@ -4,6 +4,7 @@ export default function RouterPage(params) {
   return (
     <div>
       <NavBar></NavBar>
+
       <main>
         <Outlet></Outlet>
       </main>

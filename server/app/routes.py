@@ -8,16 +8,14 @@ from flask_jwt_extended import (
 )
 from dotenv import load_dotenv
 import time
-
-jwt = JWTManager(app)
-users = [{"email": "test@test.com", "password": "password"}]
+from .Users import User
 
 
 @app.route("/")
 @jwt_required()
 def home():
     email = get_jwt_identity()
-    return jsonify(email=email), 200
+    return jsonify({"email":email}), 200
 
 
 @app.route("/login", methods=["POST"])
@@ -25,10 +23,30 @@ def login():
     email = request.json.get("email", None)
     password = request.json.get("password", None)
 
-    time.sleep(2)
-    if {"email": email, "password": password} in users:
-        access_token = create_access_token(identity=email)
-        return jsonify(access_token=access_token), 200
+    
 
-    print(email, password)
-    return jsonify({"msg": "invalid credentials"}), 401
+    if email is None:
+        return jsonify({"message": "Please provide a valid name"}), 400
+    if password is None:
+        return jsonify({"message": "Please provide a valid name"}), 400
+
+    temp_user = User(email= email,password= password)
+    return temp_user.login()
+
+
+
+@app.route("/signup", methods=["POST"])
+def signup():
+    name = request.json.get("name", None)
+    email = request.json.get("email", None)
+    password = request.json.get("password", None)
+
+    if name is None:
+        return jsonify({"message": "Please provide a valid name"})
+    if email is None:
+        return jsonify({"message": "Please provide a valid name"})
+    if password is None:
+        return jsonify({"message": "Please provide a valid name"})
+
+    tempUser = User(name, email, password)
+    return tempUser.signup()

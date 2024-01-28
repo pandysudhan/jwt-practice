@@ -1,9 +1,8 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import FormFields from "../components/loginComponents/formFields";
 import FormHeader from "../components/loginComponents/formHeader";
 import FormSubmissionArea from "../components/loginComponents/formSubmissionArea";
-
+import { useNavigate } from "react-router-dom";
 
 const signupFields = [
   {
@@ -53,9 +52,37 @@ signupFields.forEach((field) => (fieldState[field.id] = ""));
 
 function SignUp() {
   const [signupState, setSignupState] = useState(fieldState);
-  function handleSignUpSubmit() {
-    console.log("signup details");
-    console.log(signupState)
+  const navigate = useNavigate();
+  const [token, setToken] = useState(
+    localStorage.getItem("access_token") || ""
+  );
+
+  useEffect(() => {
+    if (token ) {
+      navigate("/");
+    }
+  }, [token]);
+
+  async function handleSignUpSubmit() {
+    try {
+      const response = await fetch("http://127.0.0.1:8000/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: signupState['name'],
+          email: signupState["email-address"],
+          password: signupState["password"],
+        }),
+      });
+      const res = await response.json();
+      console.log(res.access_token);
+      localStorage.setItem("access_token", res.access_token);
+      setToken(res.access_token);
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   const handleSignUpChange = (e) => {
@@ -64,7 +91,11 @@ function SignUp() {
   return (
     <div>
       <FormHeader formType="SignUp" alternateUrl="/login"></FormHeader>
-      <FormFields formTypeState = {signupState} fields={signupFields} handleChange={handleSignUpChange}></FormFields>
+      <FormFields
+        formTypeState={signupState}
+        fields={signupFields}
+        handleChange={handleSignUpChange}
+      ></FormFields>
       <FormSubmissionArea
         formType="SignUp"
         handleSubmit={handleSignUpSubmit}
